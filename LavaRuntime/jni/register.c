@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <signal.h>
 
+ #include <unistd.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
 #include "lava.h"
 
 
@@ -68,6 +71,16 @@ jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 	}
 
 	result = JNI_VERSION_1_4;
+	
+	
+	fflush(stdout);
+     setvbuf(stdout,NULL,_IONBF,0);
+     //printf("test stdout\n");
+     int save_fd = dup(STDOUT_FILENO); // 保存标准输出 文件描述符 注:这里一定要用 dup 复制一个文件描述符. 不要用 = 就像是Winodws下的句柄.
+     int fd = open("/sdcard/lava/log/log.txt",(O_RDWR | O_CREAT), 0644);
+     dup2(fd,STDOUT_FILENO); // 用我们新打开的文件描述符替换掉 标准输出
+    // printf("test file\n");
+	
 	return result;
 }
 

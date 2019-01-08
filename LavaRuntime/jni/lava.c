@@ -1,4 +1,5 @@
 #include"lava.h"
+#include "lavadev.h"
 #include <dlfcn.h>
 
 #include <stdio.h>
@@ -16,10 +17,37 @@
  
  void* handle=NULL;
  
+ JNIEnv *mVmJniEnv;
+ 
+ static jobject obj_emulator;
+ 
+ static jmethodID id_drawText; //发送短信
+static jmethodID id_flush; //刷新画布
+static jmethodID id_finish; //结束Activity 
+static jmethodID id_toast; //Toast显示
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 void file_copy(char *srcFile,char *desFile);
 
 
+void initJniId(JNIEnv * env, jobject obj);
+
+
+
 typedef char *(*hello_t)();
+
+
+inline getJniEnv()
+{
+   return mVmJniEnv;
+}
+
+
 
 
 void native_main(JNIEnv *env, jobject obj,jstring path){
@@ -28,9 +56,85 @@ void native_main(JNIEnv *env, jobject obj,jstring path){
 	sopath=jstringTostring(env,path);
 	
 	file_copy(sopath,sofile);
+	    obj_emulator = (*env)->NewGlobalRef(env, obj);
+		
+	
+		mVmJniEnv = env;
+	initJniId(env, obj);
 	
 	
+}
+
+
+//……………………实现库函数……………………………
+
+// 绘制颜色清屏
+void emu_drawText(char *str,int x,int y,int r,int g,int b,int size)
+{
 	
+   JNIEnv *jniEnv=getJniEnv();
+  jstring jstr=stoJstring(jniEnv,str);
+   (*jniEnv)->CallVoidMethod(jniEnv,obj_emulator,id_drawText,jstr,x,y,r,g,b,size);
+}
+
+
+
+//注册java方法
+void initJniId(JNIEnv * env, jobject obj)
+{
+    //Emulator
+    jclass cls = (*env)->GetObjectClass(env, obj_emulator);
+	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "(Ljava/lang/String;IIIIII)V");
+	/*
+	id_toast = (*env)->GetMethodID(env, cls, "N2J_toast", "(Ljava/lang/String;)V");
+    id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
+    id_lcd = (*env)->GetMethodID(env, cls, "N2J_lcdLong", "(I)V");
+    id_getuptime = (*env)->GetMethodID(env, cls, "N2J_getUptime", "()J");
+    id_spcreate = (*env)->GetMethodID(env, cls, "N2J_spCreate", "(Ljava/lang/String;)V");
+    id_spputint = (*env)->GetMethodID(env, cls, "N2J_putInt", "(Ljava/lang/String;I)V");
+    id_spputstr = (*env)->GetMethodID(env, cls, "N2J_putString", "(Ljava/lang/String;Ljava/lang/String;)V");
+    id_spgetint = (*env)->GetMethodID(env, cls, "N2J_getInt", "(Ljava/lang/String;)I");
+    id_spgetstr = (*env)->GetMethodID(env, cls, "N2J_getString", "(Ljava/lang/String;)Ljava/lang/String;");
+    id_videoPlayer = (*env)->GetMethodID(env, cls, "N2J_videoPlayer", "(Ljava/lang/String;)V");
+    id_musicPlayer = (*env)->GetMethodID(env, cls, "N2J_musicPlayer", "(Ljava/lang/String;I)V");
+    id_sendSms = (*env)->GetMethodID(env,cls,"N2J_sendSms","(Ljava/lang/String;Ljava/lang/String;I)I");
+    id_webBrowser = (*env)->GetMethodID(env,cls,"N2J_webBrowser","(Ljava/lang/String;)V");
+	*/
+	(*env)->DeleteLocalRef(env, cls);
+    /*
+    //EmuView
+    cls = (*env)->GetObjectClass(env, obj_emuScreen);
+    id_textWH = (*env)->GetMethodID(env, cls, "N2J_textWH", "(Ljava/lang/String;III)V");
+	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "(Ljava/lang/String;IIIIII)V");
+    id_drawRGB = (*env)->GetMethodID(env, cls, "N2J_drawRGB", "(III)V");
+    id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
+    id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");
+    id_drawLine = (*env)->GetMethodID(env, cls, "N2J_drawLine", "(IIIIIII)V");
+    id_drawCircle = (*env)->GetMethodID(env, cls, "N2J_drawCircle", "(IIIIII)V");
+    id_drawEffsetion = (*env)->GetMethodID(env, cls, "N2J_drawEffsetion", "(IIIIIII)V");
+	id_refresh = (*env)->GetMethodID(env, cls, "N2J_refresh", "(IIII)V");
+    (*env)->DeleteLocalRef(env, cls);
+  
+    //Audio
+    cls = (*env)->GetObjectClass(env, obj_emuAudio);
+	id_startshake = (*env)->GetMethodID(env, cls, "N2J_startShake", "(I)V");
+	id_stopshake = (*env)->GetMethodID(env, cls, "N2J_stopShake", "()V");
+    id_soundinit = (*env)->GetMethodID(env, cls, "N2J_playSoundExInit", "(I)I");
+	id_soundloadfile = (*env)->GetMethodID(env, cls, "N2J_playSoundExLoadFile", "(ILjava/lang/String;)I");
+	id_soundplay = (*env)->GetMethodID(env, cls, "N2J_playSoundEx", "(III)I");
+	id_soundpause = (*env)->GetMethodID(env, cls, "N2J_pauseSoundEx", "(I)I");
+	id_soundstop = (*env)->GetMethodID(env, cls, "N2J_stopSoundEx", "(I)I");
+	id_soundresume = (*env)->GetMethodID(env, cls, "N2J_resumeSoundEx", "(I)I");
+	id_soundclose = (*env)->GetMethodID(env, cls, "N2J_closeSoundEx", "(I)I");
+	id_setvolume = (*env)->GetMethodID(env, cls, "N2J_setVolume", "(I)I");
+	id_getSoundAllTime = (*env)->GetMethodID(env, cls, "N2J_getSoundTotalTime", "(I)I");
+	id_getSoundNowTime = (*env)->GetMethodID(env, cls, "N2J_getSoundCurTime", "(I)I");
+	id_getSoundNowTimes = (*env)->GetMethodID(env, cls, "N2J_getSoundCurTimeMs", "(I)I");
+	id_setplaypos = (*env)->GetMethodID(env, cls, "N2J_setPlayPos", "(II)I");
+	id_setplaytime = (*env)->GetMethodID(env, cls, "N2J_setPlayTime", "(II)I");
+	id_getdevicestate = (*env)->GetMethodID(env, cls, "N2J_getDeviceState", "(I)I");
+    (*env)->DeleteLocalRef(env, cls);
+	*/
 	
 }
 
