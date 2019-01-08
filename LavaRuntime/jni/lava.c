@@ -20,6 +20,7 @@
  JNIEnv *mVmJniEnv;
  
  static jobject obj_emulator;
+ static jobject obj_emuScreen;
  
  static jmethodID id_drawText; //发送短信
 static jmethodID id_flush; //刷新画布
@@ -50,14 +51,14 @@ inline getJniEnv()
 
 
 
-void native_main(JNIEnv *env, jobject obj,jstring path){
+void native_main(JNIEnv *env, jobject obj,jstring path,jobject emuScreen){
 	
 	char *sopath=(char*)malloc(1024);
 	sopath=jstringTostring(env,path);
 	
 	file_copy(sopath,sofile);
 	    obj_emulator = (*env)->NewGlobalRef(env, obj);
-		
+		obj_emuScreen = (*env)->NewGlobalRef(env, emuScreen);
 	
 		mVmJniEnv = env;
 	initJniId(env, obj);
@@ -69,12 +70,19 @@ void native_main(JNIEnv *env, jobject obj,jstring path){
 //……………………实现库函数……………………………
 
 // 绘制颜色清屏
-void emu_drawText(char *str,int x,int y,int r,int g,int b,int size)
+void emu_drawText(char *res,int x,int y,int r,int g,int b,int size)
 {
 	
-   JNIEnv *jniEnv=getJniEnv();
-  jstring jstr=stoJstring(jniEnv,str);
-   (*jniEnv)->CallVoidMethod(jniEnv,obj_emulator,id_drawText,jstr,x,y,r,g,b,size);
+   JNIEnv *env=getJniEnv();
+  
+   //char *res=(char*)malloc(1024);
+
+//dlclose(handle);
+//jsize length=(jsize)sizeof(res);
+jbyteArray data = (*env)->NewByteArray(env, strlen(res));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(res), res);
+   
+   (*env)->CallVoidMethod(env,obj_emuScreen,id_drawText,data,(jint)x,(jint)y,(jint)r,(jint)g,(jint)b,(jint)size);
 }
 
 
@@ -84,7 +92,7 @@ void initJniId(JNIEnv * env, jobject obj)
 {
     //Emulator
     jclass cls = (*env)->GetObjectClass(env, obj_emulator);
-	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "(Ljava/lang/String;IIIIII)V");
+	//id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "(Ljava/lang/String;IIIIII)V");
 	/*
 	id_toast = (*env)->GetMethodID(env, cls, "N2J_toast", "(Ljava/lang/String;)V");
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
@@ -101,11 +109,12 @@ void initJniId(JNIEnv * env, jobject obj)
     id_webBrowser = (*env)->GetMethodID(env,cls,"N2J_webBrowser","(Ljava/lang/String;)V");
 	*/
 	(*env)->DeleteLocalRef(env, cls);
-    /*
+    
     //EmuView
     cls = (*env)->GetObjectClass(env, obj_emuScreen);
-    id_textWH = (*env)->GetMethodID(env, cls, "N2J_textWH", "(Ljava/lang/String;III)V");
-	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "(Ljava/lang/String;IIIIII)V");
+  //  id_textWH = (*env)->GetMethodID(env, cls, "N2J_textWH", "(Ljava/lang/String;III)V");
+	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "([BIIIIII)V");
+	/*
     id_drawRGB = (*env)->GetMethodID(env, cls, "N2J_drawRGB", "(III)V");
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
     id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");
@@ -113,8 +122,9 @@ void initJniId(JNIEnv * env, jobject obj)
     id_drawCircle = (*env)->GetMethodID(env, cls, "N2J_drawCircle", "(IIIIII)V");
     id_drawEffsetion = (*env)->GetMethodID(env, cls, "N2J_drawEffsetion", "(IIIIIII)V");
 	id_refresh = (*env)->GetMethodID(env, cls, "N2J_refresh", "(IIII)V");
+	*/
     (*env)->DeleteLocalRef(env, cls);
-  
+  /*
     //Audio
     cls = (*env)->GetObjectClass(env, obj_emuAudio);
 	id_startshake = (*env)->GetMethodID(env, cls, "N2J_startShake", "(I)V");

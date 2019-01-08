@@ -8,6 +8,9 @@ import android.support.v4.app.ActivityCompat;
 import android.content.pm.*;
 import java.io.*;
 import android.view.*;
+import android.os.*;
+import java.util.*;
+import android.widget.*;
 
 public class HelloJni extends Activity
 {
@@ -17,6 +20,8 @@ public class HelloJni extends Activity
 	static String fpath="/data/data/as.mke.lavrun/files";
 	
 	NativeView nv;
+	
+	Handler hd;
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -29,25 +34,44 @@ public class HelloJni extends Activity
 		
 		
       verifyStoragePermissions(this);
-		native_main("/sdcard/0/lavatest.so");
-        //TextView tv=new TextView(this);
-		System.load("/data/data/as.mke.lavrun/files/librun.so");
-		//tv.setText(new String(native_result()));
 		nv=new NativeView(this);
-        setContentView(nv);
+	  
+		native_main("/sdcard/0/lavatest.so",nv);
+        TextView tv=new TextView(this);
+		System.load("/data/data/as.mke.lavrun/files/librun.so");
+		tv.setText(new String(native_result()));
+		
+        setContentView(R.layout.main);
+		LinearLayout l=(LinearLayout)findViewById(R.id.mainLinearLayout1);
+		
+		l.addView(tv);
+		l.addView(nv);
+		init();
+		//nv.drawText("ooooo",100,200,new int[]{200,0,0},100);
 		//R.layout.main);
     }
 
-	public void N2J_drawText(String s,int x,int y,int r,int g,int b,int size){
-		int bn[]=new int[3];
-		bn[0]=r;
-		bn[1]=g;
-		bn[2]=b;
-		nv.drawText(s,x,y,bn,size);
+	
+	
+	
+	public void init(){
+		hd=new Handler(){
+			
+			public void handleMessage(Message msg){
+				super.handleMessage(msg);
+				
+				switch(msg.what){
+					case 0x111:
+						/*
+						List<Object> li=(List)msg.obj;
+						nv.drawText(li.get(0).toString(),(int)li.get(1),(int)li.get(2),(int[])li.get(3),(int)li.get(4));
+						sho("draw");
+						*/
+					break;
+				}
+			}
+		};
 	}
-	
-	
-	
 	
 	
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -56,10 +80,24 @@ public class HelloJni extends Activity
 		"android.permission.WRITE_EXTERNAL_STORAGE" };
 
 
+		
+		public void sho(Object o){
+			Toast.makeText(this,o.toString(),0).show();
+		}
     public static void verifyStoragePermissions(Activity activity) {
 
 		
 		File file=new File(fpath);
+		if(!file.exists()){
+			file.mkdir();
+		}
+		
+		file=new File("sdcard/lava");
+		if(!file.exists()){
+			file.mkdir();
+		}
+		
+		file=new File("sdcard/lava/log");
 		if(!file.exists()){
 			file.mkdir();
 		}
@@ -80,7 +118,7 @@ public class HelloJni extends Activity
 	
 	
     
-    public native void  native_main(String path);
+    public native void  native_main(String path,NativeView nv);
 
   
 	public  native byte[] native_result();

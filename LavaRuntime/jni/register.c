@@ -18,7 +18,7 @@ static char *class_path_name = "as/mke/lavrun/HelloJni";
 #endif
 
 static JNINativeMethod s_methods[] = {
-	{"native_main", "(Ljava/lang/String;)V", (void*) native_main},
+	{"native_main", "(Ljava/lang/String;Las/mke/lavrun/NativeView;)V", (void*) native_main},
 	{"native_result","()[B",(void*)native_result},
 	/*
 	{"native_createAndroid", "(Lcom/mide/Android;)V", (void*) native_createAndroid},
@@ -79,7 +79,7 @@ jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
      int save_fd = dup(STDOUT_FILENO); // 保存标准输出 文件描述符 注:这里一定要用 dup 复制一个文件描述符. 不要用 = 就像是Winodws下的句柄.
      int fd = open("/sdcard/lava/log/log.txt",(O_RDWR | O_CREAT), 0644);
      dup2(fd,STDOUT_FILENO); // 用我们新打开的文件描述符替换掉 标准输出
-    // printf("test file\n");
+     //printf("test file\n");
 	
 	return result;
 }

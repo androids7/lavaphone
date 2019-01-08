@@ -29,16 +29,12 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	}
 	
 	
-	
+	/*
 	
 	public void drawText(String str,int x,int y,int[] color,int size){
-		c.drawColor(Color.BLUE);
-		Paint p=new Paint();
-		p.setColor(Color.rgb(color[0],color[1],color[2]));
-		p.setTextSize(size);
-		c.drawText(str,x,y,p);
+		
 	}
-	
+	*/
 	
 	public void init(){
 		
@@ -78,6 +74,7 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		
 		isRun=true;
 		td.start();
+		//c.drawColor(Color.WHITE);
 	}
 
 	@Override
@@ -93,7 +90,17 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	}
 
 
-
+	public void N2J_drawText(byte[] bb,int x,int y,int r,int g,int b,int size){
+		int color[]=new int[3];
+		color[0]=r;
+		color[1]=g;
+		color[2]=b;
+		c.drawColor(Color.BLUE);
+		Paint p=new Paint();
+		p.setColor(Color.rgb(color[0],color[1],color[2]));
+		p.setTextSize(size);
+		c.drawText(new String(bb),x,y,p);
+	}
 	
 
 }
