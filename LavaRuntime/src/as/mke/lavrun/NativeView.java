@@ -48,23 +48,7 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		
 		
 		
-		td=new Thread(){
-			public void run(){
-				while(isRun){
-					//if(back!=true){
-				Canvas cc=holder.lockCanvas();
-				cc.drawBitmap(bp,dst,src,null);
-				if(cc!=null){
-					holder.unlockCanvasAndPost(cc);
-				}
-				
-				}
-				
-				
-				
-				}
-			//}
-		};
+		
 	}
 	
 	@Override
@@ -73,6 +57,34 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		// TODO: Implement this method
 		
 		isRun=true;
+		
+		td=new Thread(){
+			public void run(){
+
+
+
+				while(isRun){
+					//if(back!=true){
+					//while(!back){
+					Canvas  cc=holder.lockCanvas();
+					if(cc!=null){
+						cc.drawBitmap(bp,dst,src,null);
+
+
+						//if(cc!=null){
+						holder.unlockCanvasAndPost(cc);
+						//}
+					}
+
+
+				}
+
+
+
+			}
+			//}
+		};
+		
 		td.start();
 		//c.drawColor(Color.WHITE);
 	}
@@ -80,13 +92,15 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	@Override
 	public void surfaceChanged(SurfaceHolder p1, int p2, int p3, int p4)
 	{
-		
+		//isRun=true;
+	//back=false;
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder p1)
 	{
 		isRun=false;
+		//back=true;
 	}
 
 

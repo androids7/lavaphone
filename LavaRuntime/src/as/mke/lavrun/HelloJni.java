@@ -35,7 +35,7 @@ public class HelloJni extends Activity
 		
       verifyStoragePermissions(this);
 		nv=new NativeView(this);
-	  
+		nv.setZOrderOnTop(true);
 		native_main("/sdcard/0/lavatest.so",nv);
         TextView tv=new TextView(this);
 		System.load("/data/data/as.mke.lavrun/files/librun.so");
@@ -46,6 +46,7 @@ public class HelloJni extends Activity
 		
 		l.addView(tv);
 		l.addView(nv);
+		
 		init();
 		//nv.drawText("ooooo",100,200,new int[]{200,0,0},100);
 		//R.layout.main);
