@@ -95,12 +95,14 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		color[0]=r;
 		color[1]=g;
 		color[2]=b;
-		c.drawColor(Color.BLUE);
+		//c.drawColor(Color.BLUE);
 		Paint p=new Paint();
 		p.setColor(Color.rgb(color[0],color[1],color[2]));
 		p.setTextSize(size);
 		c.drawText(new String(bb),x,y,p);
 	}
-	
+	public void N2J_drawRGB(int r,int g,int b){
+		c.drawColor(Color.rgb(r,g,b));
+	}
 
 }

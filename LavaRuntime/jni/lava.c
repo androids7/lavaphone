@@ -23,7 +23,7 @@
  static jobject obj_emuScreen;
  
  static jmethodID id_drawText; //发送短信
-static jmethodID id_flush; //刷新画布
+static jmethodID id_drawRGB; //刷新画布
 static jmethodID id_finish; //结束Activity 
 static jmethodID id_toast; //Toast显示
  
@@ -85,7 +85,11 @@ jbyteArray data = (*env)->NewByteArray(env, strlen(res));
    (*env)->CallVoidMethod(env,obj_emuScreen,id_drawText,data,(jint)x,(jint)y,(jint)r,(jint)g,(jint)b,(jint)size);
 }
 
+void emu_drawRGB(int r,int g,int b){
+	JNIEnv *env=getJniEnv();
+   (*env)->CallVoidMethod(env,obj_emuScreen,id_drawRGB,(jint)r,(jint)g,(jint)b);
 
+}
 
 //注册java方法
 void initJniId(JNIEnv * env, jobject obj)
@@ -114,8 +118,9 @@ void initJniId(JNIEnv * env, jobject obj)
     cls = (*env)->GetObjectClass(env, obj_emuScreen);
   //  id_textWH = (*env)->GetMethodID(env, cls, "N2J_textWH", "(Ljava/lang/String;III)V");
 	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "([BIIIIII)V");
-	/*
+	
     id_drawRGB = (*env)->GetMethodID(env, cls, "N2J_drawRGB", "(III)V");
+	/*
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
     id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");
     id_drawLine = (*env)->GetMethodID(env, cls, "N2J_drawLine", "(IIIIIII)V");
