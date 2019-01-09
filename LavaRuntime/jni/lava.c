@@ -25,7 +25,7 @@
  static jmethodID id_drawText; //发送短信
 static jmethodID id_drawRGB; //刷新画布
 static jmethodID id_createTimer; //结束Activity 
-static jmethodID id_toast; //Toast显示
+static jmethodID id_startTimer; //Toast显示
  
  
  
@@ -43,7 +43,7 @@ void initJniId(JNIEnv * env, jobject obj);
 typedef int(*main_t)();
 typedef void(*timers_t)();
 
-timers_t timer[255];;
+timers_t timer[255];
 int timerpoint=0;
 inline getJniEnv()
 {
@@ -76,11 +76,12 @@ void runTimerMethod(JNIEnv *env, jobject obj,jint point){
 	timer[point]();
 	
 }
-int registerTimer(JNIEnv *env, jobject obj,jstring str,jlong time)
+//返回函数指针
+int registerTimer(JNIEnv *env, jobject obj,jstring str)
 {
 	//JNIEnv *env=getJniEnv();
-	//char *bstr=jstringTostring(env,str);
-	timer[timerpoint]= (timers_t) dlsym(handle,str);
+	char *bstr=jstringTostring(env,str);
+	timer[timerpoint]= (timers_t) dlsym(handle,bstr);
 	timerpoint++;
 	/*
 	
@@ -89,7 +90,7 @@ int registerTimer(JNIEnv *env, jobject obj,jstring str,jlong time)
    
 	  (*env)->CallVoidMethod(env,obj_emulator,id_createTimer,data,(jlong)time);
 */
-	return ( timerpoint-1);
+	return (timerpoint-1);
 }
 
 
@@ -97,19 +98,39 @@ int registerTimer(JNIEnv *env, jobject obj,jstring str,jlong time)
 //……………………实现库函数……………………………
 
 //创建定时器
-int emu_createTimer(char *bstr,long time){
+int emu_createTimer(char *bstr){
 	
 	
 	JNIEnv *env=getJniEnv();
 	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
 (*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
    
-	return  (*env)->CallIntMethod(env,obj_emulator,id_createTimer,data,(jlong)time);
+	return  (*env)->CallIntMethod(env,obj_emulator,id_createTimer,data);
 
 }
 
+int emu_startTimer(int id,long delay){
+	
+	
+	JNIEnv *env=getJniEnv();
+	
+	
+	return  (*env)->CallIntMethod(env,obj_emulator,id_startTimer,id,(jlong)delay);
+
+	
+}
 
 
+jbyteArray geterror(JNIEnv * env, jobject obj){
+	char *res=(char*)malloc(4096);
+	res=dlerror();
+	jbyteArray data = (*env)->NewByteArray(env, strlen(res));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(res), res);
+   
+	
+	return data;
+	
+}
 // 绘制颜色清屏
 void emu_drawText(char *res,int x,int y,int r,int g,int b,int size)
 {
@@ -137,9 +158,10 @@ void initJniId(JNIEnv * env, jobject obj)
 {
     //Emulator
     jclass cls = (*env)->GetObjectClass(env, obj_emulator);
-	id_createTimer = (*env)->GetMethodID(env, cls, "N2J_createTimer", "([BJ)I");
+	id_createTimer = (*env)->GetMethodID(env, cls, "N2J_createTimer", "([B)I");
+	
+	id_startTimer = (*env)->GetMethodID(env, cls, "N2J_startTimer", "(IJ)I");
 	/*
-	id_toast = (*env)->GetMethodID(env, cls, "N2J_toast", "(Ljava/lang/String;)V");
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
     id_lcd = (*env)->GetMethodID(env, cls, "N2J_lcdLong", "(I)V");
     id_getuptime = (*env)->GetMethodID(env, cls, "N2J_getUptime", "()J");
@@ -196,30 +218,32 @@ void initJniId(JNIEnv * env, jobject obj)
 
 
 
-int native_result(JNIEnv *env,jobject obj){
+jbyteArray native_result(JNIEnv *env,jobject obj){
 	
 	
-	handle=dlopen("librun.so",RTLD_NOW);
+	handle=dlopen("librun.so",RTLD_LAZY);
 	
 	main_t maim = (main_t) dlsym(handle,"main");
 
-//char *res=(char*)malloc(1024);
-	/*
+char *res=(char*)malloc(1024);
+	
 res="oooo";
-res=dlerror();
-*/
-int res=maim();
+
+//res=dlerror();
+
+maim();
+//int res=maim();
 
 //dlclose(handle);
 //jsize length=(jsize)sizeof(res);
-/*
+
 jbyteArray data = (*env)->NewByteArray(env, strlen(res));
 (*env)->SetByteArrayRegion(env, data, 0, strlen(res), res);
 //使用数据
 //(*env)->DeleteLocalRef(env, data);
 return data;
-*/
-return res;
+
+//return res;
 	//return stoJstring(env,res);
 }
 

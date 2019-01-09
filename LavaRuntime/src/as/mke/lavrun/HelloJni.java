@@ -21,10 +21,12 @@ public class HelloJni extends Activity
 	
 	NativeView nv;
 
-	Timer time[];
+	Timer[] time=null;
 	int timepoint=0;
-	
+	//HashMap<Integer,Timer> timemap;
 	Handler hd;
+	
+	TextView tv;
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -39,10 +41,16 @@ public class HelloJni extends Activity
       verifyStoragePermissions(this);
 		nv=new NativeView(this);
 		nv.setZOrderOnTop(true);
+		
+		init();
+		
+		       tv=new TextView(this);
+		
 		native_main("/sdcard/qeditor/workspace/lavatest/bin/lavatest.so",nv);
-        TextView tv=new TextView(this);
+		
 		System.load("/data/data/as.mke.lavrun/files/librun.so");
-		tv.setText("result:"+native_result());
+		tv.setText("result:"+new String(native_result()));
+		
 		
         setContentView(R.layout.main);
 		LinearLayout l=(LinearLayout)findViewById(R.id.mainLinearLayout1);
@@ -50,7 +58,6 @@ public class HelloJni extends Activity
 		l.addView(tv);
 		l.addView(nv);
 		
-		init();
 		//nv.drawText("ooooo",100,200,new int[]{200,0,0},100);
 		//R.layout.main);
     }
@@ -58,7 +65,7 @@ public class HelloJni extends Activity
 	
 	
 	
-	public int N2J_createTimer( byte[] methodname,long delay){
+	public int N2J_createTimer( byte[] methodname){
 		
 		/*
 		TimerTask task=new TimerTask(){
@@ -67,23 +74,50 @@ public class HelloJni extends Activity
 				runTimerMethod(new String(methodname));
 			}
 		};*/
-	
-	timepoint++;
+		timepoint++;
+	//sho(new String(methodname));
+	/*
+	new Thread(){
+		public void run(){
+			
+			Message msg=new Message();
+			msg.obj=new String(geterror());
+		hd.sendMessage(msg);
 		
-		return registerTimer(new String(methodname),delay);
+		
+		}
+		}.start();
+		*/
+		return registerTimer(new String(methodname));
 		}
 	
-		public int startTimer(final int id,long delay){
-			
-			time[timepoint].schedule(new TimerTask(){
-					public void run(){
+		public int N2J_startTimer(final int id,long delay){
+			try{
+				//time[timepoint]=new Timer();
+			//	Timer t=new Timer();
+				//sho("timepoint:"+(timepoint-1)+"id:"+id);
+				BackTask bt=new BackTask();
+				bt.methodid=id;
+			time[timepoint-1].schedule(bt,delay);
+			/*
+			new TimerTask(){
+				@Override
+				public void run(){
 
-						runTimerMethod(id);
+						
 					}
 				},delay);
+				*/
+			//t.schedule(tt,delay);
+			//timemap.put(timepoint,t);
+			
+				}catch(Exception e){
+					sho(e+" "+timepoint);
+				}
+				
 			
 				
-			return (timepoint-1);
+			return timepoint;
 				
 		}
 		public void destroyTimer(int id){
@@ -96,9 +130,10 @@ public class HelloJni extends Activity
 		
 
 		 time=new Timer[255];
-		
+		// timemap=new HashMap<Integer,Timer>();
+	
 		 for(int i=0;i<255;i++){
-			 time[i]=new Timer();
+			 time[i]=new Timer(true);
 		 }
 		 
 		 
@@ -109,6 +144,9 @@ public class HelloJni extends Activity
 				
 				switch(msg.what){
 					case 0x111:
+						sho("call handle");
+						//tv.setText(new String(geterror()));
+						
 						/*
 						List<Object> li=(List)msg.obj;
 						nv.drawText(li.get(0).toString(),(int)li.get(1),(int)li.get(2),(int[])li.get(3),(int)li.get(4));
@@ -168,11 +206,11 @@ public class HelloJni extends Activity
     public native void  native_main(String path,NativeView nv);
 
   
-	public native int registerTimer(String methodname,long delay);
+	public native int registerTimer(String methodname);
 	
 	public native void runTimerMethod(int id);
-	public  native int native_result();
-    
+	public  native byte[] native_result();
+    public native byte[] geterror();
     static {
         System.loadLibrary("core");
     }
@@ -195,5 +233,26 @@ protected void onResume()
 }
 	
 	
-	
+	class BackTask extends TimerTask
+	{
+
+		int methodid=0;
+		@Override
+		public void run()
+		{
+			runOnUiThread(new Runnable(){
+				
+				public void run(){
+				
+			runTimerMethod(methodid);
+			hd.sendEmptyMessage(0x111);
+			
+			
+			}
+			
+			});
+		}
+
+		
+	}
 }
