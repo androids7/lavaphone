@@ -24,7 +24,7 @@
  
  static jmethodID id_drawText; //发送短信
 static jmethodID id_drawRGB; //刷新画布
-static jmethodID id_finish; //结束Activity 
+static jmethodID id_createTimer; //结束Activity 
 static jmethodID id_toast; //Toast显示
  
  
@@ -40,9 +40,11 @@ void initJniId(JNIEnv * env, jobject obj);
 
 
 
-typedef char *(*hello_t)();
+typedef int(*main_t)();
+typedef void(*timers_t)();
 
-
+timers_t timer[255];;
+int timerpoint=0;
 inline getJniEnv()
 {
    return mVmJniEnv;
@@ -67,7 +69,46 @@ void native_main(JNIEnv *env, jobject obj,jstring path,jobject emuScreen){
 }
 
 
+
+
+void runTimerMethod(JNIEnv *env, jobject obj,jint point){
+	
+	timer[point]();
+	
+}
+int registerTimer(JNIEnv *env, jobject obj,jstring str,jlong time)
+{
+	//JNIEnv *env=getJniEnv();
+	//char *bstr=jstringTostring(env,str);
+	timer[timerpoint]= (timers_t) dlsym(handle,str);
+	timerpoint++;
+	/*
+	
+	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
+   
+	  (*env)->CallVoidMethod(env,obj_emulator,id_createTimer,data,(jlong)time);
+*/
+	return ( timerpoint-1);
+}
+
+
+
 //……………………实现库函数……………………………
+
+//创建定时器
+int emu_createTimer(char *bstr,long time){
+	
+	
+	JNIEnv *env=getJniEnv();
+	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
+   
+	return  (*env)->CallIntMethod(env,obj_emulator,id_createTimer,data,(jlong)time);
+
+}
+
+
 
 // 绘制颜色清屏
 void emu_drawText(char *res,int x,int y,int r,int g,int b,int size)
@@ -96,7 +137,7 @@ void initJniId(JNIEnv * env, jobject obj)
 {
     //Emulator
     jclass cls = (*env)->GetObjectClass(env, obj_emulator);
-	//id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "(Ljava/lang/String;IIIIII)V");
+	id_createTimer = (*env)->GetMethodID(env, cls, "N2J_createTimer", "([BJ)I");
 	/*
 	id_toast = (*env)->GetMethodID(env, cls, "N2J_toast", "(Ljava/lang/String;)V");
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
@@ -155,25 +196,30 @@ void initJniId(JNIEnv * env, jobject obj)
 
 
 
-jbyteArray native_result(JNIEnv *env,jobject obj){
+int native_result(JNIEnv *env,jobject obj){
 	
 	
 	handle=dlopen("librun.so",RTLD_NOW);
 	
-	hello_t hello = (hello_t) dlsym(handle,"out");
+	main_t maim = (main_t) dlsym(handle,"main");
 
-char *res=(char*)malloc(1024);
+//char *res=(char*)malloc(1024);
+	/*
 res="oooo";
 res=dlerror();
-res=hello();
+*/
+int res=maim();
 
 //dlclose(handle);
 //jsize length=(jsize)sizeof(res);
+/*
 jbyteArray data = (*env)->NewByteArray(env, strlen(res));
 (*env)->SetByteArrayRegion(env, data, 0, strlen(res), res);
 //使用数据
 //(*env)->DeleteLocalRef(env, data);
 return data;
+*/
+return res;
 	//return stoJstring(env,res);
 }
 

@@ -19,10 +19,13 @@ static char *class_path_name = "as/mke/lavrun/HelloJni";
 
 static JNINativeMethod s_methods[] = {
 	{"native_main", "(Ljava/lang/String;Las/mke/lavrun/NativeView;)V", (void*) native_main},
-	{"native_result","()[B",(void*)native_result},
+	{"native_result","()I",(void*)native_result},
+	
+	{"registerTimer", "(Ljava/lang/String;J)I", (void*) registerTimer},
+	
+	{"runTimerMethod","(I)V",(void*)runTimerMethod},
+	//{"startTimer","(I)I",(void*) },
 	/*
-	{"native_createAndroid", "(Lcom/mide/Android;)V", (void*) native_createAndroid},
-	{"native_exit","()V",(void*) native_exit},
 	{"native_event","(III)V",(void*) native_event},
 	{"native_init","()V",(void*) native_init},
 	{"native_resume","()V",(void*) native_resume},

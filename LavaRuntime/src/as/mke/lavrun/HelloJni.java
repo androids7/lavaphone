@@ -20,6 +20,9 @@ public class HelloJni extends Activity
 	static String fpath="/data/data/as.mke.lavrun/files";
 	
 	NativeView nv;
+
+	Timer time[];
+	int timepoint=0;
 	
 	Handler hd;
     @Override
@@ -36,10 +39,10 @@ public class HelloJni extends Activity
       verifyStoragePermissions(this);
 		nv=new NativeView(this);
 		nv.setZOrderOnTop(true);
-		native_main("/sdcard/0/lavatest.so",nv);
+		native_main("/sdcard/qeditor/workspace/lavatest/bin/lavatest.so",nv);
         TextView tv=new TextView(this);
 		System.load("/data/data/as.mke.lavrun/files/librun.so");
-		tv.setText(new String(native_result()));
+		tv.setText("result:"+native_result());
 		
         setContentView(R.layout.main);
 		LinearLayout l=(LinearLayout)findViewById(R.id.mainLinearLayout1);
@@ -55,7 +58,50 @@ public class HelloJni extends Activity
 	
 	
 	
+	public int N2J_createTimer( byte[] methodname,long delay){
+		
+		/*
+		TimerTask task=new TimerTask(){
+			public void run(){
+				
+				runTimerMethod(new String(methodname));
+			}
+		};*/
+	
+	timepoint++;
+		
+		return registerTimer(new String(methodname),delay);
+		}
+	
+		public int startTimer(final int id,long delay){
+			
+			time[timepoint].schedule(new TimerTask(){
+					public void run(){
+
+						runTimerMethod(id);
+					}
+				},delay);
+			
+				
+			return (timepoint-1);
+				
+		}
+		public void destroyTimer(int id){
+			time[id].cancel();
+		}
+		
+		
 	public void init(){
+		
+		
+
+		 time=new Timer[255];
+		
+		 for(int i=0;i<255;i++){
+			 time[i]=new Timer();
+		 }
+		 
+		 
 		hd=new Handler(){
 			
 			public void handleMessage(Message msg){
@@ -122,7 +168,10 @@ public class HelloJni extends Activity
     public native void  native_main(String path,NativeView nv);
 
   
-	public  native byte[] native_result();
+	public native int registerTimer(String methodname,long delay);
+	
+	public native void runTimerMethod(int id);
+	public  native int native_result();
     
     static {
         System.loadLibrary("core");
@@ -134,7 +183,7 @@ public class HelloJni extends Activity
  // TODO: Implement this method
  
 super.onPause();
-nv.back=true;
+//nv.back=true;
 }
 
 @Override
@@ -142,7 +191,7 @@ protected void onResume()
 {
 	// TODO: Implement this method
 	super.onResume();
-	nv.back=false;
+	//nv.back=false;
 }
 	
 	
