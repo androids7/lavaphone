@@ -6,16 +6,39 @@
 
 extern void emu_drawText(char *str,int x,int y,int r,int g,int b,int size);
 
+extern void emu_drawRGB(int r,int g,int b);
+extern void emu_toast(char* str);
+extern int emu_createTimer(char *bstr);
+extern int emu_startTimer(int id,void* data,long delay,long period);
+int i=1;
+char *buf;
 
-char *out()
+
+void test(int data);
+void test(int  data){
+	
+	sprintf(buf,"data:%d",data);
+//emu_drawRGB(200,(int)data,200);
+	emu_toast(buf);
+	 emu_drawText(buf,200,120*i,200,50,50,32);
+i++;
+	}
+int main()
 {
 	/*
 	void *handle=dlopen("libcore.so");
 	
 	Emu_drawText emu_drawText=(Emu_drawText)dlsym(handle,"emu_drawText");
 	*/
-	 emu_drawText("hello",200,120,200,50,50,32);
+	buf=(char*)malloc(1024);
 	printf("hello");
+	
+	int t=emu_createTimer("test");
+	//int t2=emu_createTimer("test2");
+	int tt=emu_startTimer(0,i,(long)1000,3);
+emu_drawRGB(0,200,200);
+	
+	
 	/*
 	fflush(stdout);
 	
@@ -27,6 +50,6 @@ char *out()
      printf("test file\n");
 	fflush(stdout);
 	*/
-	return "hello world!";
+	return 0;
 	
 }
