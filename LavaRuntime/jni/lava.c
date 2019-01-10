@@ -29,7 +29,7 @@ static jmethodID id_startTimer; //Toast显示
  
  static jmethodID id_toast;
  
- 
+ static jmethodID id_refs;
  
  
  
@@ -152,6 +152,19 @@ jbyteArray geterror(JNIEnv * env, jobject obj){
 	
 }
 // 绘制颜色清屏
+void emu_refs(int x,int y,int w,int h){
+	
+	
+	JNIEnv *env=getJniEnv();
+  
+   (*env)->CallVoidMethod(env,obj_emuScreen,id_refs,(jint)x,(jint)y,(jint)w,(jint)h);
+
+   
+   }
+
+
+
+
 void emu_drawText(char *res,int x,int y,int r,int g,int b,int size)
 {
 	
@@ -184,6 +197,7 @@ void initJniId(JNIEnv * env, jobject obj)
 	
 	id_toast = (*env)->GetMethodID(env, cls, "N2J_Toast", "([B)V");
 	
+	
 	/*
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
     id_lcd = (*env)->GetMethodID(env, cls, "N2J_lcdLong", "(I)V");
@@ -205,6 +219,7 @@ void initJniId(JNIEnv * env, jobject obj)
   //  id_textWH = (*env)->GetMethodID(env, cls, "N2J_textWH", "(Ljava/lang/String;III)V");
 	id_drawText = (*env)->GetMethodID(env, cls, "N2J_drawText", "([BIIIIII)V");
 	
+	id_refs= (*env)->GetMethodID(env, cls, "N2J_refs", "(IIII)V");
     id_drawRGB = (*env)->GetMethodID(env, cls, "N2J_drawRGB", "(III)V");
 	/*
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");

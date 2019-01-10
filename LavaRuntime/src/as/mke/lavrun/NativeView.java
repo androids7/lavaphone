@@ -17,7 +17,7 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	Thread td;
 	SurfaceHolder holder;
 	
-	
+	Paint bmp;
 	public NativeView(Context cc){
 		super(cc);
 		
@@ -38,6 +38,10 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	
 	public void init(){
 		
+		
+		setWillNotDraw(true);
+		setDrawingCacheEnabled(false);
+		
 		bp=Bitmap.createBitmap(720,1280,Bitmap.Config.ARGB_8888);
 		c=new Canvas(bp);
 		height=HelloJni.height;
@@ -46,7 +50,7 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		src=new Rect(0,0,width,height);
 		dst=new Rect(0,0,720,1280);
 		
-		
+		bmp=new Paint();
 		
 		
 	}
@@ -57,38 +61,61 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		// TODO: Implement this method
 		
 		isRun=true;
-		
+		/*
 		td=new Thread(){
 			public void run(){
 
-
-
+				
+				long t = 0 ;
 				while(isRun){
+					
+					
+				
+						t = System.currentTimeMillis();
+						onDraw();
+						try {
+							Thread.sleep(Math.max(0, 50-(System.currentTimeMillis()-t)));
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
 					//if(back!=true){
 					//while(!back){
-					Canvas  cc=holder.lockCanvas();
+					
+						//}
+						
+						
+
+
+				
+
+
+
+			
+			//}
+		};
+		*/
+		//td.start();
+		//c.drawColor(Color.WHITE);
+	}
+
+	public void onDraw(){
+		
+		Canvas  cc=null;
+		cc=holder.lockCanvas();
 					if(cc!=null){
-						cc.drawBitmap(bp,dst,src,null);
+						cc.drawBitmap(bp,dst,src,bmp);
 
 
 						//if(cc!=null){
 						holder.unlockCanvasAndPost(cc);
-						//}
-					}
-
-
-				}
-
-
-
-			}
-			//}
-		};
-		
-		td.start();
-		//c.drawColor(Color.WHITE);
+		}
 	}
-
+	
+	
+	
 	@Override
 	public void surfaceChanged(SurfaceHolder p1, int p2, int p3, int p4)
 	{
@@ -116,7 +143,24 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		c.drawText(new String(bb),x,y,p);
 	}
 	public void N2J_drawRGB(int r,int g,int b){
-		c.drawColor(Color.rgb(r,g,b));
+		Paint p=new Paint();
+		p.setColor(Color.rgb(r,g,b));
+		c.drawRect(dst,p);
+		//c.drawColor(Color.rgb(r,g,b));
 	}
 
+	public void N2J_refs(int x,int y,int w,int h){
+		
+		Rect rect=new Rect(x,y,w,h);
+		Canvas  cc=null;
+		cc=holder.lockCanvas(rect);
+		if(cc!=null){
+			cc.drawBitmap(bp,dst,src,bmp);
+
+
+			//if(cc!=null){
+			holder.unlockCanvasAndPost(cc);
+		}
+		
+	}
 }

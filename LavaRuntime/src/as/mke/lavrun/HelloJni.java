@@ -41,9 +41,15 @@ public class HelloJni extends Activity
 		
 		
       verifyStoragePermissions(this);
+	  
+		//setContentView(R.layout.main);
+	  
+	  
+	  
+		//nv=(NativeView)findViewById(R.id.mainNativeView1);
 		nv=new NativeView(this);
 		nv.setZOrderOnTop(true);
-		
+		setContentView(nv);
 		init();
 		
 		       tv=new TextView(this);
@@ -54,11 +60,12 @@ public class HelloJni extends Activity
 		tv.setText("result:"+new String(native_result()));
 		
 		
-        setContentView(R.layout.main);
+        /*
 		LinearLayout l=(LinearLayout)findViewById(R.id.mainLinearLayout1);
 		
 		l.addView(tv);
-		l.addView(nv);
+		*/
+		//l.addView(nv);
 		
 		//nv.drawText("ooooo",100,200,new int[]{200,0,0},100);
 		//R.layout.main);
@@ -93,15 +100,16 @@ public class HelloJni extends Activity
 		return registerTimer(new String(methodname));
 		}
 	
-		public int N2J_startTimer(final int id,long datas,long delay,long period){
+		public int N2J_startTimer(int id,long datas,long delay,long period){
 			try{
 				//time[timepoint]=new Timer();
 			//	Timer t=new Timer();
 				//sho("timepoint:"+(timepoint-1)+"id:"+id);
-				time[timepoint].purge();
+				time[timepoint-1].purge();
 			
-				task[timepoint].methodid=id;
-				task[timepoint].data=datas;
+			//	task[timepoint]=new BackTask();
+				task[timepoint-1].methodid=id;
+				task[timepoint-1].data=datas;
 			time[timepoint-1].schedule(task[timepoint-1],delay,period);
 			/*
 			new TimerTask(){
@@ -138,7 +146,7 @@ public class HelloJni extends Activity
 		// timemap=new HashMap<Integer,Timer>();
 	
 		 for(int i=0;i<255;i++){
-			 time[i]=new Timer(true);
+			 time[i]=new Timer();
 			 task[i]=new BackTask();
 		 }
 		 
@@ -159,6 +167,13 @@ public class HelloJni extends Activity
 						nv.drawText(li.get(0).toString(),(int)li.get(1),(int)li.get(2),(int[])li.get(3),(int)li.get(4));
 						sho("draw");
 						*/
+					break;
+					
+					case 0x112:
+						List<Object> li=(ArrayList<Object>)msg.obj;
+						int methodid=li.get(0);
+						long data=li.get(1);
+						runTimerMethod(methodid,data);
 					break;
 				}
 			}
@@ -272,17 +287,26 @@ protected void onResume()
 		@Override
 		public void run()
 		{
+			Message msg=new Message();
+			List<Object> li=new ArrayList<Object>();
+			li.add(methodid);
+			li.add(data);
+			msg.obj=li;
+			msg.what=0x112;
+			hd.sendMessage(msg);
+			
+			/*
 			runOnUiThread(new Runnable(){
 				
 				public void run(){
 				
-			runTimerMethod(methodid,data);
+			
 		//	hd.sendEmptyMessage(0x111);
 			
 			
 			}
 			
-			});
+			});*/
 		}
 
 		
