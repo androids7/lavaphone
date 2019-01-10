@@ -22,6 +22,8 @@ public class HelloJni extends Activity
 	NativeView nv;
 
 	Timer[] time=null;
+	BackTask[] task=null;
+	
 	int timepoint=0;
 	//HashMap<Integer,Timer> timemap;
 	Handler hd;
@@ -91,14 +93,16 @@ public class HelloJni extends Activity
 		return registerTimer(new String(methodname));
 		}
 	
-		public int N2J_startTimer(final int id,long delay){
+		public int N2J_startTimer(final int id,long datas,long delay,long period){
 			try{
 				//time[timepoint]=new Timer();
 			//	Timer t=new Timer();
 				//sho("timepoint:"+(timepoint-1)+"id:"+id);
-				BackTask bt=new BackTask();
-				bt.methodid=id;
-			time[timepoint-1].schedule(bt,delay);
+				time[timepoint].purge();
+			
+				task[timepoint].methodid=id;
+				task[timepoint].data=datas;
+			time[timepoint-1].schedule(task[timepoint-1],delay,period);
 			/*
 			new TimerTask(){
 				@Override
@@ -130,10 +134,12 @@ public class HelloJni extends Activity
 		
 
 		 time=new Timer[255];
+		 task=new BackTask[255];
 		// timemap=new HashMap<Integer,Timer>();
 	
 		 for(int i=0;i<255;i++){
 			 time[i]=new Timer(true);
+			 task[i]=new BackTask();
 		 }
 		 
 		 
@@ -144,7 +150,8 @@ public class HelloJni extends Activity
 				
 				switch(msg.what){
 					case 0x111:
-						sho("call handle");
+						sho(msg.obj.toString());
+						//("call handle");
 						//tv.setText(new String(geterror()));
 						
 						/*
@@ -202,13 +209,37 @@ public class HelloJni extends Activity
     }
 	
 	
+	
+	public void N2J_Toast(byte[] str){
+		
+		
+		final Message msg=new Message();
+		msg.what=0x111;
+		msg.obj=new String(str);
+		
+		runOnUiThread(new Runnable(){
+
+				public void run(){
+
+     hd.sendMessage(msg);
+					//Toast.makeText(HelloJni.this,s,0).show();
+
+
+				}
+
+			});
+		
+	}
+	
+	
     
     public native void  native_main(String path,NativeView nv);
 
+	
   
 	public native int registerTimer(String methodname);
 	
-	public native void runTimerMethod(int id);
+	public native void runTimerMethod(int id,long data);
 	public  native byte[] native_result();
     public native byte[] geterror();
     static {
@@ -237,6 +268,7 @@ protected void onResume()
 	{
 
 		int methodid=0;
+		long data=0;
 		@Override
 		public void run()
 		{
@@ -244,8 +276,8 @@ protected void onResume()
 				
 				public void run(){
 				
-			runTimerMethod(methodid);
-			hd.sendEmptyMessage(0x111);
+			runTimerMethod(methodid,data);
+		//	hd.sendEmptyMessage(0x111);
 			
 			
 			}

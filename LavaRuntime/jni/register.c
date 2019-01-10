@@ -23,7 +23,7 @@ static JNINativeMethod s_methods[] = {
 	
 	{"registerTimer", "(Ljava/lang/String;)I", (void*) registerTimer},
 	
-	{"runTimerMethod","(I)V",(void*)runTimerMethod},
+	{"runTimerMethod","(IJ)V",(void*)runTimerMethod},
 	{"geterror","()[B",(void*)geterror },
 	/*
 	{"native_event","(III)V",(void*) native_event},

@@ -27,7 +27,7 @@ static jmethodID id_drawRGB; //刷新画布
 static jmethodID id_createTimer; //结束Activity 
 static jmethodID id_startTimer; //Toast显示
  
- 
+ static jmethodID id_toast;
  
  
  
@@ -38,10 +38,10 @@ void file_copy(char *srcFile,char *desFile);
 
 void initJniId(JNIEnv * env, jobject obj);
 
-
+int datasave[255];
 
 typedef int(*main_t)();
-typedef void(*timers_t)();
+typedef void(*timers_t)(int* data);
 
 timers_t timer[255];
 int timerpoint=0;
@@ -71,9 +71,15 @@ void native_main(JNIEnv *env, jobject obj,jstring path,jobject emuScreen){
 
 
 
-void runTimerMethod(JNIEnv *env, jobject obj,jint point){
-	
-	timer[point]();
+void runTimerMethod(JNIEnv *env, jobject obj,jint point,jlong data){
+	//void *bd=(void*)data;
+	/*
+	char *buf=(char*)malloc(1024);
+	int a=(int)datasave[point];
+	sprintf(buf,"data:%d",a);
+	//emu_toast(buf);
+	*/
+	timer[point](datasave[point]);
 	
 }
 //返回函数指针
@@ -97,6 +103,19 @@ int registerTimer(JNIEnv *env, jobject obj,jstring str)
 
 //……………………实现库函数……………………………
 
+
+void emu_toast(char *bstr){
+	
+	JNIEnv *env=getJniEnv();
+	//jstring ss=stoJstring(env,str);
+	
+	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
+   
+	(*env)->CallVoidMethod(env,obj_emulator,id_toast,data);
+	
+}
+
 //创建定时器
 int emu_createTimer(char *bstr){
 	
@@ -109,13 +128,14 @@ int emu_createTimer(char *bstr){
 
 }
 
-int emu_startTimer(int id,long delay){
+int emu_startTimer(int id,void* data,long delay,long period){
 	
-	
+	datasave[timerpoint-1]=10086;
+	datasave[timerpoint-1]=data;
 	JNIEnv *env=getJniEnv();
 	
 	
-	return  (*env)->CallIntMethod(env,obj_emulator,id_startTimer,id,(jlong)delay);
+	return  (*env)->CallIntMethod(env,obj_emulator,id_startTimer,id,(jlong)datasave[timerpoint-1],(jlong)delay,(jlong)period);
 
 	
 }
@@ -160,7 +180,10 @@ void initJniId(JNIEnv * env, jobject obj)
     jclass cls = (*env)->GetObjectClass(env, obj_emulator);
 	id_createTimer = (*env)->GetMethodID(env, cls, "N2J_createTimer", "([B)I");
 	
-	id_startTimer = (*env)->GetMethodID(env, cls, "N2J_startTimer", "(IJ)I");
+	id_startTimer = (*env)->GetMethodID(env, cls, "N2J_startTimer", "(IJJJ)I");
+	
+	id_toast = (*env)->GetMethodID(env, cls, "N2J_Toast", "([B)V");
+	
 	/*
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
     id_lcd = (*env)->GetMethodID(env, cls, "N2J_lcdLong", "(I)V");
