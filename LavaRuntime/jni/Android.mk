@@ -20,10 +20,11 @@ LOCAL_CPP_EXTENSION := .cpp .cc
 LOCAL_MODULE    := core
 LOCAL_SRC_FILES := hello-jni.cpp  \
 register.c \
-lava.c 
+lava.c  \
+zip.c
 
 
-LOCAL_LDLIBS= -ldl
+LOCAL_LDLIBS= -ldl -lz -ljnigraphics
 ifeq ($(TARGET_ARCH_ABI),x86)
     LOCAL_CFLAGS += -ffast-math -mtune=atom -mssse3 -mfpmath=sse
 endif

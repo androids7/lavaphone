@@ -11,6 +11,7 @@ import android.view.*;
 import android.os.*;
 import java.util.*;
 import android.widget.*;
+import android.graphics.*;
 
 public class HelloJni extends Activity
 {
@@ -24,10 +25,15 @@ public class HelloJni extends Activity
 	Timer[] time=null;
 	BackTask[] task=null;
 	
+	
+	//Bitmap[] bmp;
+	
+	
 	int timepoint=0;
+	
 	//HashMap<Integer,Timer> timemap;
 	Handler hd;
-	
+	String pak="/sdcard/qeditor/workspace/lavatest/bin/lavatest.zip";
 	TextView tv;
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -47,14 +53,14 @@ public class HelloJni extends Activity
 	  
 	  
 		//nv=(NativeView)findViewById(R.id.mainNativeView1);
-		nv=new NativeView(this);
+		nv=new NativeView(this,pak);
 		nv.setZOrderOnTop(true);
 		setContentView(nv);
 		init();
 		
 		       tv=new TextView(this);
 		
-		native_main("/sdcard/qeditor/workspace/lavatest/bin/lavatest.so",nv);
+		native_main(pak,nv);
 		
 		System.load("/data/data/as.mke.lavrun/files/librun.so");
 		tv.setText("result:"+new String(native_result()));
@@ -71,7 +77,6 @@ public class HelloJni extends Activity
 		//R.layout.main);
     }
 
-	
 	
 	
 	public int N2J_createTimer( byte[] methodname){
@@ -143,11 +148,13 @@ public class HelloJni extends Activity
 
 		 time=new Timer[255];
 		 task=new BackTask[255];
+		// bmp=new Bitmap[255];
 		// timemap=new HashMap<Integer,Timer>();
 	
 		 for(int i=0;i<255;i++){
 			 time[i]=new Timer();
 			 task[i]=new BackTask();
+			 
 		 }
 		 
 		 
@@ -191,7 +198,11 @@ public class HelloJni extends Activity
 		public void sho(Object o){
 			Toast.makeText(this,o.toString(),0).show();
 		}
-    public static void verifyStoragePermissions(Activity activity) {
+		
+		
+		
+	
+    public  void verifyStoragePermissions(Activity activity) {
 
 		
 		File file=new File(fpath);
@@ -210,6 +221,8 @@ public class HelloJni extends Activity
 		}
 		
 		
+		
+		
         try {
 			//检测是否有写的权限
             int permission = ActivityCompat.checkSelfPermission(activity,
@@ -222,6 +235,10 @@ public class HelloJni extends Activity
             e.printStackTrace();
         }
     }
+	
+	
+	
+	
 	
 	
 	

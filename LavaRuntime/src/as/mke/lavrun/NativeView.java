@@ -3,6 +3,7 @@ import android.view.*;
 import android.view.SurfaceHolder.*;
 import android.content.*;
 import android.graphics.*;
+import java.io.*;
 
 public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 {
@@ -11,20 +12,24 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	Canvas c;
 	Bitmap bp;
 	
+	Bitmap[] imgres;
+	int bmppoint=0;
+	
 	
 	int width,height;//屏幕分辨率
 	Rect src,dst;//屏幕分辨率，屏幕缓存分辨率
 	Thread td;
 	SurfaceHolder holder;
-	
+	String pak=null;
 	Paint bmp;
-	public NativeView(Context cc){
+	public NativeView(Context cc,String pp){
 		super(cc);
 		
 		holder=this.getHolder();
 		holder.addCallback(this);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
+		this.pak=pp;
 		init();
 	}
 	
@@ -51,7 +56,7 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		dst=new Rect(0,0,720,1280);
 		
 		bmp=new Paint();
-		
+		imgres=new Bitmap[255];
 		
 	}
 	
@@ -130,7 +135,70 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		//back=true;
 	}
 
+	
+	
+	public InputStream readPak(String filename) throws Exception{
 
+		return ReadFile.readFile(pak,filename);
+
+	}
+	
+	
+	
+	public int N2J_loadImageForPak(byte[] name){
+		final String path=new String(name);
+
+		
+
+					try
+					{
+
+						imgres[bmppoint] = BitmapFactory.decodeStream(readPak(path));
+
+						bmppoint++;
+
+						//nv.N2J_drawImage(bmp[bmppoint-1],50,50);
+
+						//sho(readPak(path).available());
+					}
+					catch (Exception e)
+					{
+					
+					}
+					//Toast.makeText(HelloJni.this,s,0).show();
+
+
+				
+
+	
+		/*
+
+		 try
+		 {
+		 //
+		 }
+		 catch (Exception e)
+		 {
+		 sho(e);
+		 }
+		 */
+
+
+		return( bmppoint-1);
+		//(Object)bmp[bmppoint-1];
+		//(long)(Object)bmp;
+	}
+	
+	
+	public void N2J_drawImage(int obj,int x, int y){
+/*
+		Rect ret=new Rect(0,0,w,h);
+		RectF rf=new RectF(x,y,720,1280);
+		*/
+		//c.drawColor(Color.RED);
+		c.drawBitmap(imgres[obj],x,y,null);
+	}
+	
 	public void N2J_drawText(byte[] bb,int x,int y,int r,int g,int b,int size){
 		int color[]=new int[3];
 		color[0]=r;

@@ -6,11 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <zlib.h>
+
+#include <android/bitmap.h>
 
 #define  BUFFSIZE  1024     // 缓冲区大小
 
  char *sofile="/data/data/as.mke.lavrun/files/librun.so";
- 
+ char *tfile="/sdcard/lava/tmp/";
  jstring stoJstring(JNIEnv* env, const char* pat);
  
  char* jstringTostring(JNIEnv* env, jstring jstr) ;
@@ -31,7 +34,12 @@ static jmethodID id_startTimer; //Toast显示
  
  static jmethodID id_refs;
  
+ static jmethodID id_loadimageforpak;
  
+ static jmethodID id_drawImage;
+ 
+ 
+ static jmethodID id_loadimageforpath;
  
 void file_copy(char *srcFile,char *desFile);
 
@@ -39,7 +47,10 @@ void file_copy(char *srcFile,char *desFile);
 void initJniId(JNIEnv * env, jobject obj);
 
 int datasave[255];
-
+/*
+jobject imageres[255];
+int imgpoint=0;
+*/
 typedef int(*main_t)();
 typedef void(*timers_t)(int* data);
 
@@ -51,6 +62,14 @@ inline getJniEnv()
 }
 
 
+int on_extract_entry(const char *filename, void *arg) {
+    static int i = 0;
+    int n = *(int *)arg;
+    printf("Extracted: %s (%d of %d)\n", filename, ++i, n);
+
+    return 0;
+}
+
 
 
 void native_main(JNIEnv *env, jobject obj,jstring path,jobject emuScreen){
@@ -58,7 +77,16 @@ void native_main(JNIEnv *env, jobject obj,jstring path,jobject emuScreen){
 	char *sopath=(char*)malloc(1024);
 	sopath=jstringTostring(env,path);
 	
-	file_copy(sopath,sofile);
+	system("rm -rf /sdcard/lava/tmp");
+	//system("su");
+	int arg = 2;
+zip_extract(sopath, tfile, on_extract_entry, &arg);
+	
+	//decompress_one_file(sopath,tfile);
+	
+	//unzipfile(sopath,tfile);
+	char *tmf="/sdcard/lava/tmp/lavatest.so";
+	file_copy(tmf,sofile);
 	    obj_emulator = (*env)->NewGlobalRef(env, obj);
 		obj_emuScreen = (*env)->NewGlobalRef(env, emuScreen);
 	
@@ -115,6 +143,34 @@ void emu_toast(char *bstr){
 	(*env)->CallVoidMethod(env,obj_emulator,id_toast,data);
 	
 }
+
+void emu_drawImage(int imgid,int x,int y){
+	
+	JNIEnv *env=getJniEnv();
+	//jstring ss=stoJstring(env,str);
+	
+	
+	(*env)->CallVoidMethod(env,obj_emuScreen,id_drawImage,(jint)imgid,(jint)x,(jint)y);
+}
+
+int emu_loadImageForPak(char *bstr){
+	
+	JNIEnv *env=getJniEnv();
+	//jstring ss=stoJstring(env,str);
+	
+	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
+   /*
+	imageres[imgpoint]=(jobject)(*env)->CallLongMethod(env,obj_emulator,id_loadimageforpak,data);
+	imgpoint++;
+	return (imgpoint-1);
+	*/
+	
+	
+	(*env)->CallIntMethod(env,obj_emuScreen,id_loadimageforpak,data);
+	
+}
+
 
 //创建定时器
 int emu_createTimer(char *bstr){
@@ -197,7 +253,6 @@ void initJniId(JNIEnv * env, jobject obj)
 	
 	id_toast = (*env)->GetMethodID(env, cls, "N2J_Toast", "([B)V");
 	
-	
 	/*
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
     id_lcd = (*env)->GetMethodID(env, cls, "N2J_lcdLong", "(I)V");
@@ -221,6 +276,12 @@ void initJniId(JNIEnv * env, jobject obj)
 	
 	id_refs= (*env)->GetMethodID(env, cls, "N2J_refs", "(IIII)V");
     id_drawRGB = (*env)->GetMethodID(env, cls, "N2J_drawRGB", "(III)V");
+	
+	
+	id_loadimageforpak= (*env)->GetMethodID(env, cls, "N2J_loadImageForPak", "([B)I");
+	
+	
+	id_drawImage=(*env)->GetMethodID(env, cls, "N2J_drawImage", "(III)V");
 	/*
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
     id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");
@@ -332,6 +393,132 @@ jstring stoJstring(JNIEnv* env, const char* pat)
        return (jstring)(*env)->NewObject(env,strClass, ctorID, bytes, encoding); 
 }
 
+
+
+
+
+// Demonstration of zlib utility functions
+unsigned long file_size(char *filename)
+{
+   FILE *pFile = fopen(filename, "rb");
+   fseek (pFile, 0, SEEK_END);
+   unsigned long size = ftell(pFile);
+   fclose (pFile);
+   return size;
+}
+
+
+int decompress_one_file(char *infilename, char *outfilename)
+{
+
+   int num_read = 0;
+   char buffer[128] = {0};
+
+   gzFile infile = gzopen(infilename, "rb");
+   FILE *outfile = fopen(outfilename, "wb");
+
+   if (!infile || !outfile){
+	   printf("fail uncompress\n");
+        return -1;
+   }
+
+   while ((num_read = gzread(infile, buffer, sizeof(buffer))) > 0) {
+      fwrite(buffer, 1, num_read, outfile);
+      memset(buffer,0,128);
+    }
+   gzclose(infile);
+   fclose(outfile);
+   return 0;
+}
+
+
+int compress_one_file(char *infilename, char *outfilename)
+{
+    int num_read = 0;
+   char inbuffer[128] = {0};
+   unsigned long total_read = 0, total_wrote = 0;
+   FILE *infile = fopen(infilename, "rb");
+   gzFile outfile = gzopen(outfilename, "wb");
+   if (!infile || !outfile){
+        return -1;
+   } 
+
+   while ((num_read = fread(inbuffer, 1, sizeof(inbuffer), infile)) > 0) {
+      total_read += num_read;
+      gzwrite(outfile, inbuffer, num_read);
+      memset(inbuffer,0,128);
+   }
+   fclose(infile);
+   gzclose(outfile);
+   printf("Read %ld bytes, Wrote %ld bytes,"
+          "Compression factor %4.2f%%\n",
+      total_read, file_size(outfilename),
+      (1.0-file_size(outfilename)*1.0/total_read)*100.0);
+   return 0;
+}
+
+
+
+void unzipfile(char *src,char *destfile){
+	
+	
+	FILE* file;
+	uLong flen;
+	unsigned char* fbuf = NULL;
+	uLong ulen;
+	unsigned char* ubuf = NULL;
+ 
+	/* 通过命令行参数将srcfile文件的数据解压缩后存放到dstfile文件中 */
+	/*
+	if(argc < 3)
+	{
+		printf("Usage: zudemo srcfile dstfile\n");
+		return -1;
+	}
+ */
+	if((file = fopen(src, "rb")) == NULL)
+	{
+		printf("Can\'t open %s!\n", src);
+		return -1;
+	}
+	/* 装载源文件数据到缓冲区 */
+	fread(&ulen, sizeof(uLong), 1, file);	/* 获取缓冲区大小 */
+	fread(&flen, sizeof(uLong), 1, file);	/* 获取数据流大小 */
+	if((fbuf = (unsigned char*)malloc(sizeof(unsigned char) * flen)) == NULL)
+	{
+		printf("No enough memory!\n");
+		fclose(file);
+		return -1;
+	}
+	fread(fbuf, sizeof(unsigned char), flen, file);
+	/* 解压缩数据 */
+	if((ubuf = (unsigned char*)malloc(sizeof(unsigned char) * ulen)) == NULL)
+	{
+		printf("No enough memory!\n");
+		fclose(file);
+		return -1;
+	}
+	if(uncompress(ubuf, &ulen, fbuf, flen) != Z_OK)
+	{
+		printf("Uncompress %s failed!\n", src);
+		return -1;
+	}
+	fclose(file);
+ 
+	if((file = fopen(destfile, "wb")) == NULL)
+	{
+		printf("Can\'t create %s!\n", destfile);
+		return -1;
+	}
+	/* 保存解压缩后的数据到目标文件 */
+	fwrite(ubuf, sizeof(unsigned char), ulen, file);
+	fclose(file);
+ 
+	free(fbuf);
+	free(ubuf);
+	
+	
+}
 //可以复制任意大小的文件 
 void file_copy(char *srcFile,char *desFile){
 	

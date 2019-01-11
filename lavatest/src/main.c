@@ -10,18 +10,42 @@ extern void emu_drawRGB(int r,int g,int b);
 extern void emu_toast(char* str);
 extern int emu_createTimer(char *bstr);
 extern int emu_startTimer(int id,void* data,long delay,long period);
+extern void emu_refs(int x,int y,int w,int h);
+extern int emu_loadImageForPak(char *bstr);
+extern void emu_drawImage(int imgid,int x,int y);
+
+
 int i=1;
 char *buf;
+int img=10;
+
 
 
 void test(int data);
 void test(int  data){
 	
-	sprintf(buf,"data:%d",data);
-//emu_drawRGB(200,(int)data,200);
+	sprintf(buf,"data:%d",img);
+emu_drawRGB(200,200,200);
 	emu_toast(buf);
-	 emu_drawText(buf,200,120*i,200,50,50,32);
-i++;
+	
+	if(i<400){
+	
+	
+	
+//sprintf(buf,"data:%d",img);
+	
+ emu_drawImage(0,100,i);
+	 emu_drawText(buf,200,i,200,50,50,32);
+	
+	
+
+	 i++;
+	 }else{
+		 
+		 i=1;}
+	 
+	emu_refs(0,0,720,1280);
+	 
 	}
 int main()
 {
@@ -33,11 +57,19 @@ int main()
 	buf=(char*)malloc(1024);
 	printf("hello");
 	
+
+	
+
+	
+	
+	
 	int t=emu_createTimer("test");
 	//int t2=emu_createTimer("test2");
-	int tt=emu_startTimer(0,i,(long)1000,3);
-emu_drawRGB(0,200,200);
+	int tt=emu_startTimer(0,i,100,1);
+emu_drawRGB(200,200,200);
+img=emu_loadImageForPak("i.png");
 	
+//emu_refs(0,0,720,1280);
 	
 	/*
 	fflush(stdout);
