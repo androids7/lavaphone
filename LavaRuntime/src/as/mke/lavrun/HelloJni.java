@@ -59,8 +59,10 @@ public class HelloJni extends Activity
 		init();
 		
 		       tv=new TextView(this);
-		
+		unpakso();
 		native_main(pak,nv);
+		
+		
 		
 		System.load("/data/data/as.mke.lavrun/files/librun.so");
 		tv.setText("result:"+new String(native_result()));
@@ -78,7 +80,40 @@ public class HelloJni extends Activity
     }
 
 	
-	
+	public void unpakso(){
+		
+		File file=new File("sdcard/lava/tmp");
+		file.mkdir();
+		
+		try
+		{
+			InputStream in=ReadFile.readFile(pak,"lavatest.so");
+			ByteArrayOutputStream bao=new ByteArrayOutputStream();
+			
+			int temp=0;
+			byte b[]=new byte[1024];
+			
+			while((temp=in.read(b))!=-1){
+				bao.write(b,0,temp);
+			}
+			
+			bao.close();
+			file=new File("sdcard/lava/tmp/libgo.so");
+			
+			FileOutputStream ou=new FileOutputStream(file);
+			
+			ou.write(bao.toByteArray());
+			
+			ou.close();
+			
+			
+			
+			
+			
+		}
+		catch (Exception e)
+		{}
+	}
 	public int N2J_createTimer( byte[] methodname){
 		
 		/*

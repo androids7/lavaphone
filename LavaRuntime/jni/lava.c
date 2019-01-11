@@ -77,16 +77,23 @@ void native_main(JNIEnv *env, jobject obj,jstring path,jobject emuScreen){
 	char *sopath=(char*)malloc(1024);
 	sopath=jstringTostring(env,path);
 	
-	system("rm -rf /sdcard/lava/tmp");
+	
 	//system("su");
+	/*
 	int arg = 2;
 zip_extract(sopath, tfile, on_extract_entry, &arg);
-	
+	*/
 	//decompress_one_file(sopath,tfile);
 	
 	//unzipfile(sopath,tfile);
-	char *tmf="/sdcard/lava/tmp/lavatest.so";
+	char *tmf="/sdcard/lava/tmp/libgo.so";
+	
+	system("rm /data/data/as.mke.lavrun/files/librun.so");
+	
 	file_copy(tmf,sofile);
+	
+	system("rm -rf /sdcard/lava/tmp");
+	
 	    obj_emulator = (*env)->NewGlobalRef(env, obj);
 		obj_emuScreen = (*env)->NewGlobalRef(env, emuScreen);
 	

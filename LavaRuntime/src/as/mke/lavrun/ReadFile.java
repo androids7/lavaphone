@@ -16,7 +16,10 @@ public class ReadFile {
         ZipInputStream zin = new ZipInputStream(in,gbk);
         ZipEntry ze;
         while((ze = zin.getNextEntry()) != null){
-            if(ze.toString().equals(filename)){
+			
+			
+			
+		if(ze.getName().equals(filename)){
             //    BufferedReader br = new BufferedReader(
 				ine=zf.getInputStream(ze);
 					/*
@@ -27,11 +30,13 @@ public class ReadFile {
               */
             }
             
-       // zin.closeEntry();
-    }
+			
+			}
+     //  zin.closeEntry();
+    
 	
 	return ine;
 	
-	
 	}
+	
 }
