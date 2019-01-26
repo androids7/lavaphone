@@ -114,6 +114,17 @@ public class HelloJni extends Activity
 		catch (Exception e)
 		{}
 	}
+	
+	public void N2J_deleteTimer(int id){
+		time[id].cancel();
+		task[id].cancel();
+		time[id]=null;
+		
+		task[id]=null;
+	}
+	
+	
+	
 	public int N2J_createTimer( byte[] methodname){
 		
 		/*

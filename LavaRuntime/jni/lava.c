@@ -30,6 +30,9 @@ static jmethodID id_drawRGB; //刷新画布
 static jmethodID id_createTimer; //结束Activity 
 static jmethodID id_startTimer; //Toast显示
  
+static jmethodID id_deleteTimer;
+
+
  static jmethodID id_toast;
  
  static jmethodID id_refs;
@@ -40,6 +43,8 @@ static jmethodID id_startTimer; //Toast显示
  
  
  static jmethodID id_loadimageforpath;
+ 
+ static jmethodID id_destroyImage;
  
 void file_copy(char *srcFile,char *desFile);
 
@@ -138,6 +143,19 @@ int registerTimer(JNIEnv *env, jobject obj,jstring str)
 
 //……………………实现库函数……………………………
 
+
+void emu_destroyImage(int id){
+	JNIEnv *env=getJniEnv();
+   
+	(*env)->CallVoidMethod(env,obj_emuScreen,id_destroyImage,id);
+	
+}
+
+void emu_deleteTimer(int id){
+	JNIEnv *env=getJniEnv();
+   
+	(*env)->CallVoidMethod(env,obj_emulator,id_deleteTimer,id);
+}
 
 void emu_toast(char *bstr){
 	
@@ -260,6 +278,7 @@ void initJniId(JNIEnv * env, jobject obj)
 	
 	id_toast = (*env)->GetMethodID(env, cls, "N2J_Toast", "([B)V");
 	
+	id_deleteTimer=(*env)->GetMethodID(env,cls,"N2J_deleteTimer","(I)V");
 	/*
     id_web = (*env)->GetMethodID(env, cls, "N2J_web", "(Ljava/lang/String;)V");
     id_lcd = (*env)->GetMethodID(env, cls, "N2J_lcdLong", "(I)V");
@@ -289,6 +308,9 @@ void initJniId(JNIEnv * env, jobject obj)
 	
 	
 	id_drawImage=(*env)->GetMethodID(env, cls, "N2J_drawImage", "(III)V");
+	
+	id_destroyImage=(*env)->GetMethodID(env,cls,"N2J_destroyImage","(I)V");
+	
 	/*
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
     id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");

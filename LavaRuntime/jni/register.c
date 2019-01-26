@@ -25,6 +25,9 @@ static JNINativeMethod s_methods[] = {
 	
 	{"runTimerMethod","(IJ)V",(void*)runTimerMethod},
 	{"geterror","()[B",(void*)geterror },
+	
+	
+	
 	/*
 	{"native_event","(III)V",(void*) native_event},
 	{"native_init","()V",(void*) native_init},
