@@ -46,6 +46,13 @@ static jmethodID id_deleteTimer;
  
  static jmethodID id_destroyImage;
  
+ static jmethodID id_drawLine;
+ 
+ static jmethodID id_drawPoint;
+ 
+ static jmethodID id_zoomImage;
+ 
+ 
 void file_copy(char *srcFile,char *desFile);
 
 
@@ -142,6 +149,37 @@ int registerTimer(JNIEnv *env, jobject obj,jstring str)
 
 
 //……………………实现库函数……………………………
+
+
+void emu_drawPoint(int x,int y,int r,int g,int b){
+	
+	
+	JNIEnv *env=getJniEnv();
+  
+   (*env)->CallVoidMethod(env,obj_emuScreen,id_drawPoint,(jint)x,(jint)y,(jint)r,(jint)g,(jint)b);
+
+   
+   }
+
+void emu_drawLine(int x,int y,int x2,int y2,int r,int g,int b){
+	
+	
+	JNIEnv *env=getJniEnv();
+  
+   (*env)->CallVoidMethod(env,obj_emuScreen,id_drawLine,(jint)x,(jint)y,(jint)x2,(jint)y2,(jint)r,(jint)g,(jint)b);
+
+   
+   }
+
+int emu_zoomImage(int imgid,int w,int h){
+	
+	
+	JNIEnv *env=getJniEnv();
+  
+ return   (*env)->CallIntMethod(env,obj_emuScreen,id_zoomImage,(jint)imgid,(jint)w,(jint)h);
+
+   
+   }
 
 
 void emu_destroyImage(int id){
@@ -311,6 +349,12 @@ void initJniId(JNIEnv * env, jobject obj)
 	
 	id_destroyImage=(*env)->GetMethodID(env,cls,"N2J_destroyImage","(I)V");
 	
+	
+	id_drawLine=(*env)->GetMethodID(env,cls,"N2J_drawLine","(IIIIIII)V");
+	
+	id_drawPoint=(*env)->GetMethodID(env,cls,"N2J_drawPoint","(IIIII)V");
+	
+	id_zoomImage=(*env)->GetMethodID(env,cls,"N2J_zoomImage","(III)I");
 	/*
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
     id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");

@@ -191,6 +191,40 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		//(long)(Object)bmp;
 	}
 	
+	public void N2J_drawPoint(int x,int y,int r,int g,int b){
+		Paint pp=new Paint();
+		pp.setColor(Color.rgb(r,g,b));
+		c.drawPoint(x,y,pp);
+	}
+	
+	public void N2J_drawLine(int x1,int y1,int x2,int y2,int r,int g,int b){
+		
+		Paint pp=new Paint();
+		pp.setColor(Color.rgb(r,g,b));
+		c.drawLine(x1,y1,x2,y2,pp);
+	}
+	
+	public int N2J_zoomImage(int bmpid,int width,int height){
+	  imgres[bmppoint]=zoomImg(imgres[bmpid],width,height);
+	  bmppoint++;
+	  return (bmppoint-1);
+	}
+	
+	public  Bitmap zoomImg(Bitmap bm, int newWidth ,int newHeight){
+		// 获得图片的宽高
+		int width = bm.getWidth();
+		int height = bm.getHeight();
+		// 计算缩放比例
+		float scaleWidth = ((float) newWidth) / width;
+		float scaleHeight = ((float) newHeight) / height;
+		// 取得想要缩放的matrix参数
+		Matrix matrix = new Matrix();
+		matrix.postScale(scaleWidth, scaleHeight);
+		// 得到新的图片
+		Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
+		return newbm;
+	}
+	
 	
 	public void N2J_drawImage(int obj,int x, int y){
 /*

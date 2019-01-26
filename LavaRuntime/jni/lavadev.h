@@ -15,3 +15,11 @@ extern void unzipfile(char *src,char *destfile);
 extern void emu_deleteTimer(int id);
 
 extern void emu_destroyImage(int id);
+
+extern void emu_drawPoint(int x,int y,int r,int g,int b);
+
+extern void emu_drawLine(int x,int y,int x2,int y2,int r,int g,int b);
+
+
+extern int emu_zoomImage(int imgid,int w,int h);
+
