@@ -171,8 +171,8 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 			count=MAX_POINTER_NUMBER;
 		for(int i=0;i<count;i++)
 		{
-			pointersX[i]=event.getX(i)*wh;
-			pointersY[i]=event.getY(i)*hw;
+			pointersX[i]=event.getX(i)*720/width;
+			pointersY[i]=event.getY(i)*1280/height;
 			pointersId[i]=event.getPointerId(i);
 		}
 
