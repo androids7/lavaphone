@@ -13,34 +13,49 @@ extern int emu_startTimer(int id,void* data,long delay,long period);
 extern void emu_refs(int x,int y,int w,int h);
 extern int emu_loadImageForPak(char *bstr);
 extern void emu_drawImage(int imgid,int x,int y);
+extern void emu_deleteTimer(int id);
+extern void emu_destroyImage(int id);
+extern void emu_drawPoint(int x,int y,int r,int g,int b);
+extern void emu_drawLine(int x,int y,int x2,int y2,int r,int g,int b);
+extern int emu_zoomImage(int imgid,int w,int h);
+extern int emu_getScrH();
+extern int emu_getScrW();
+
 
 
 int i=1;
 char *buf;
 int img=10;
+int img2;
 
+int SCRW,SCRH;
 
+int x1=1,y1=200;
 
 void test(int data);
 void test(int  data){
 	
 	sprintf(buf,"data:%d",img);
 emu_drawRGB(200,200,200);
-	emu_toast(buf);
 	
-	if(i<400){
+	if(i<50){
 	
 	
 	
 //sprintf(buf,"data:%d",img);
-	
- emu_drawImage(0,100,i);
+	if(i!=1)
+emu_drawImage(1,x1,y1);
+ emu_drawPoint(90,i,0,0,0);
+ emu_drawLine(90,i,500,i*2,0,0,0);
 	 emu_drawText(buf,200,i,200,50,50,32);
 	
 	
 
 	 i++;
 	 }else{
+		// emu_deleteTimer(0);
+		 
+		// emu_destroyImage(0);
 		 
 		 i=1;}
 	 
@@ -59,16 +74,22 @@ int main()
 	
 
 	
-
+SCRH= emu_getScrH();
+SCRW= emu_getScrW();
+	
+	
 	
 	
 	
 	int t=emu_createTimer("test");
 	//int t2=emu_createTimer("test2");
-	int tt=emu_startTimer(0,i,100,1);
-emu_drawRGB(200,200,200);
-img=emu_loadImageForPak("i.png");
 	
+img=emu_loadImageForPak("obj/i.png");
+	img2=emu_zoomImage(0,72*2,72*2);
+	
+//	int tt=emu_startTimer(0,i,1000,1);
+emu_drawRGB(200,200,200);
+
 //emu_refs(0,0,720,1280);
 	
 	/*
@@ -85,3 +106,21 @@ img=emu_loadImageForPak("i.png");
 	return 0;
 	
 }
+
+
+
+void onTouch(int action,float x,float y,int pointerIndex,int pointerCount
+			,float pointersX[],float pointersY[],int pointersId[]){
+				
+			//	x=190;
+				//(int)pointersX[pointerIndex];
+			
+			emu_drawRGB(200,200,0);
+
+emu_drawImage(1,(int)pointersX[pointerIndex],(int)pointersY[pointerIndex]);
+
+emu_refs(0,0,SCRW,SCRH);
+
+		//	emu_toast("touch");
+	
+				}
