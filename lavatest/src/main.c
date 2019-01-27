@@ -20,7 +20,8 @@ extern void emu_drawLine(int x,int y,int x2,int y2,int r,int g,int b);
 extern int emu_zoomImage(int imgid,int w,int h);
 extern int emu_getScrH();
 extern int emu_getScrW();
-
+extern int emu_loadImageForData(char *bstr);
+extern int emu_loadImageForPath(char *bstr);
 
 
 int i=1;
@@ -84,7 +85,10 @@ SCRW= emu_getScrW();
 	int t=emu_createTimer("test");
 	//int t2=emu_createTimer("test2");
 	
-img=emu_loadImageForPak("obj/i.png");
+//img=emu_loadImageForPak("obj/i.png");
+
+img=emu_loadImageForPath("/storage/emulated/0/qeditor/workspace/lavatest/bin/i.png");
+
 	img2=emu_zoomImage(0,72*2,72*2);
 	
 //	int tt=emu_startTimer(0,i,1000,1);

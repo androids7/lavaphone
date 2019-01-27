@@ -43,6 +43,8 @@ static jmethodID id_deleteTimer;
  
  
  static jmethodID id_loadimageforpath;
+ static jmethodID id_loadimageforbyte;
+ static jmethodID id_loadimageforext;
  
  static jmethodID id_destroyImage;
  
@@ -263,6 +265,45 @@ void emu_drawImage(int imgid,int x,int y){
 	(*env)->CallVoidMethod(env,obj_emuScreen,id_drawImage,(jint)imgid,(jint)x,(jint)y);
 }
 
+int emu_loadImageForPath(char *bstr){
+	JNIEnv *env=getJniEnv();
+	//jstring ss=stoJstring(env,str);
+	
+	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
+   /*
+	imageres[imgpoint]=(jobject)(*env)->CallLongMethod(env,obj_emulator,id_loadimageforpak,data);
+	imgpoint++;
+	return (imgpoint-1);
+	*/
+	
+	
+	return (*env)->CallIntMethod(env,obj_emuScreen,id_loadimageforext,data);
+	
+	
+}
+
+
+
+int emu_loadImageForData(char *bstr){
+	JNIEnv *env=getJniEnv();
+	//jstring ss=stoJstring(env,str);
+	
+	jbyteArray data = (*env)->NewByteArray(env, strlen(bstr));
+(*env)->SetByteArrayRegion(env, data, 0, strlen(bstr), bstr);
+   /*
+	imageres[imgpoint]=(jobject)(*env)->CallLongMethod(env,obj_emulator,id_loadimageforpak,data);
+	imgpoint++;
+	return (imgpoint-1);
+	*/
+	
+	
+	(*env)->CallIntMethod(env,obj_emuScreen,id_loadimageforbyte,data);
+	
+	
+}
+
+
 int emu_loadImageForPak(char *bstr){
 	
 	JNIEnv *env=getJniEnv();
@@ -277,7 +318,7 @@ int emu_loadImageForPak(char *bstr){
 	*/
 	
 	
-	(*env)->CallIntMethod(env,obj_emuScreen,id_loadimageforpak,data);
+	return (*env)->CallIntMethod(env,obj_emuScreen,id_loadimageforpak,data);
 	
 }
 
@@ -407,6 +448,10 @@ void initJniId(JNIEnv * env, jobject obj)
 	id_getScrW=(*env)->GetMethodID(env,cls,"N2J_getScrW","()I");
 	
 	id_getScrH=(*env)->GetMethodID(env,cls,"N2J_getScrH","()I");
+	
+	id_loadimageforext=(*env)->GetMethodID(env,cls,"N2J_loadImageForExt","([B)I");
+	id_loadimageforbyte=(*env)->GetMethodID(env,cls,"N2J_loadImageForByte","([B)I");
+	
 	
 	
 	/*

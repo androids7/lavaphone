@@ -194,6 +194,28 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	public void N2J_destroyImage(int id){
 		imgres[id].recycle();
 	}
+	
+	
+	public int N2J_loadImageForExt(byte[] name){
+		
+		imgres[bmppoint]=BitmapFactory.decodeFile(new String(name));
+		
+		
+		bmppoint++;
+		
+		return (bmppoint-1);
+	}
+	
+	public int N2J_loadImageForByte(byte[] data){
+		
+		imgres[bmppoint]=BitmapFactory.decodeByteArray(data,0,data.length);
+		bmppoint++;
+		
+		return (bmppoint-1);
+	}
+	
+	
+	
 	public int N2J_loadImageForPak(byte[] name){
 		final String path=new String(name);
 

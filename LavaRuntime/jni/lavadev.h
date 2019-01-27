@@ -28,3 +28,7 @@ extern int emu_getScrH();
 
 extern int emu_getScrW();
 
+extern int emu_loadImageForData(char *bstr);
+
+extern int emu_loadImageForPath(char *bstr);
+
