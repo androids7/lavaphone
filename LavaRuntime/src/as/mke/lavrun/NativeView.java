@@ -23,6 +23,10 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	String pak=null;
 	HelloJni activity;
 	Paint bmp;
+	
+	float wh,hw;
+	
+	
 	public NativeView(Context cc,String pp,HelloJni activity){
 		super(cc);
 		
@@ -36,6 +40,8 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		setFocusableInTouchMode(true);
 		
 		this.pak=pp;
+		
+		
 		
 		init();
 	}
@@ -64,7 +70,8 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		
 		bmp=new Paint();
 		imgres=new Bitmap[255];
-		
+		wh=720/width;
+		hw=1280/height;
 	}
 	
 	@Override
@@ -149,6 +156,7 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	private float pointersY[]=new float[MAX_POINTER_NUMBER];
 	private int   pointersId[]=new int[MAX_POINTER_NUMBER];
 
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		//MotionEvent.ACTION_DOWN 
@@ -163,8 +171,8 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 			count=MAX_POINTER_NUMBER;
 		for(int i=0;i<count;i++)
 		{
-			pointersX[i]=event.getX(i);
-			pointersY[i]=event.getY(i);
+			pointersX[i]=event.getX(i)*wh;
+			pointersY[i]=event.getY(i)*hw;
 			pointersId[i]=event.getPointerId(i);
 		}
 
