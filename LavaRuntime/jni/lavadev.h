@@ -23,3 +23,8 @@ extern void emu_drawLine(int x,int y,int x2,int y2,int r,int g,int b);
 
 extern int emu_zoomImage(int imgid,int w,int h);
 
+
+extern int emu_getScrH();
+
+extern int emu_getScrW();
+

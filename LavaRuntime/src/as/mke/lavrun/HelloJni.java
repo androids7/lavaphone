@@ -12,8 +12,9 @@ import android.os.*;
 import java.util.*;
 import android.widget.*;
 import android.graphics.*;
+import android.view.View.*;
 
-public class HelloJni extends Activity
+public class HelloJni extends Activity implements OnTouchListener
 {
     /** Called when the activity is first created. */
 	
@@ -53,9 +54,11 @@ public class HelloJni extends Activity
 	  
 	  
 		//nv=(NativeView)findViewById(R.id.mainNativeView1);
-		nv=new NativeView(this,pak);
+		nv=new NativeView(this,pak,this);
 		nv.setZOrderOnTop(true);
 		setContentView(nv);
+		//nv.setOnTouchListener(this);
+		
 		init();
 		
 		       tv=new TextView(this);
@@ -79,6 +82,42 @@ public class HelloJni extends Activity
 		//R.layout.main);
     }
 
+	
+	
+	private static final int MAX_POINTER_NUMBER=10;
+	private float pointersX[]=new float[MAX_POINTER_NUMBER];
+	private float pointersY[]=new float[MAX_POINTER_NUMBER];
+	private int   pointersId[]=new int[MAX_POINTER_NUMBER];
+
+	
+	
+@Override
+public boolean onTouch(View p1, MotionEvent event)
+{
+ 
+	int count=event.getPointerCount();
+	if(count>MAX_POINTER_NUMBER)
+		count=MAX_POINTER_NUMBER;
+	for(int i=0;i<count;i++)
+	{
+		pointersX[i]=event.getX(i);
+		pointersY[i]=event.getY(i);
+		pointersId[i]=event.getPointerId(i);
+	}
+
+	return touchEvent(event.getAction(),event.getX(),event.getY(),event.getActionIndex(),count
+									  ,pointersX,pointersY,pointersId);
+	
+	
+}
+
+
+
+
+	
+	
+	
+	
 	
 	public void unpakso(){
 		
@@ -320,6 +359,11 @@ public class HelloJni extends Activity
 	public native void runTimerMethod(int id,long data);
 	public  native byte[] native_result();
     public native byte[] geterror();
+	public  native boolean touchEvent(int action,float x,float y,int pointerIndex,int pointerCount
+											,float pointersX[],float pointersY[],int pointersId[]);
+	
+	
+	
     static {
         System.loadLibrary("core");
     }

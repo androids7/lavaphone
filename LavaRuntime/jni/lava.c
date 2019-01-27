@@ -52,6 +52,8 @@ static jmethodID id_deleteTimer;
  
  static jmethodID id_zoomImage;
  
+ static jmethodID id_getScrW;
+ static jmethodID id_getScrH;
  
 void file_copy(char *srcFile,char *desFile);
 
@@ -65,8 +67,14 @@ int imgpoint=0;
 */
 typedef int(*main_t)();
 typedef void(*timers_t)(int* data);
+typedef void(*on_touch)(int action,float x,float y,int pointerIndex,int pointerCount
+			,float pointersX[],float pointersY[],int pointersId[]);
+
 
 timers_t timer[255];
+
+on_touch touchEvent_t;
+
 int timerpoint=0;
 inline getJniEnv()
 {
@@ -115,7 +123,26 @@ zip_extract(sopath, tfile, on_extract_entry, &arg);
 	
 }
 
+#define MAX_POINTER_NUMBER 10
+static float mPointersX[MAX_POINTER_NUMBER];
+static float mPointersY[MAX_POINTER_NUMBER];
+static int  mPointersID[MAX_POINTER_NUMBER];
 
+
+jboolean touchEvent(JNIEnv* mEnv,jobject clazz,jint action,jfloat x,jfloat y,jint index,jint count
+		,jfloatArray pointersX,jfloatArray pointersY,jintArray pointersId)
+{
+
+	(*mEnv)->GetFloatArrayRegion(mEnv,pointersX,0,count,mPointersX);
+	(*mEnv)->GetFloatArrayRegion(mEnv,pointersY,0,count,mPointersY);
+	(*mEnv)->GetIntArrayRegion(mEnv,pointersId,0,count,mPointersID);
+	touchEvent_t(action,x,y,index,count,mPointersX,mPointersY,mPointersID);
+	
+
+		//	touchEvent_t((int)action,(int)x,(int)y,(int)pointerIndex,(int)pointerCount,(int)pointersX,(int)pointersY,(int)pointersId);
+			
+			return 1;
+			}
 
 
 void runTimerMethod(JNIEnv *env, jobject obj,jint point,jlong data){
@@ -149,6 +176,26 @@ int registerTimer(JNIEnv *env, jobject obj,jstring str)
 
 
 //……………………实现库函数……………………………
+
+
+int emu_getScrW(){
+	
+	JNIEnv *env=getJniEnv();
+  
+   return (*env)->CallIntMethod(env,obj_emuScreen,id_getScrW);
+
+	
+}
+
+int emu_getScrH(){
+	
+	JNIEnv *env=getJniEnv();
+  
+   return (*env)->CallIntMethod(env,obj_emuScreen,id_getScrH);
+
+	
+}
+
 
 
 void emu_drawPoint(int x,int y,int r,int g,int b){
@@ -355,6 +402,13 @@ void initJniId(JNIEnv * env, jobject obj)
 	id_drawPoint=(*env)->GetMethodID(env,cls,"N2J_drawPoint","(IIIII)V");
 	
 	id_zoomImage=(*env)->GetMethodID(env,cls,"N2J_zoomImage","(III)I");
+	
+	
+	id_getScrW=(*env)->GetMethodID(env,cls,"N2J_getScrW","()I");
+	
+	id_getScrH=(*env)->GetMethodID(env,cls,"N2J_getScrH","()I");
+	
+	
 	/*
     id_drawRect = (*env)->GetMethodID(env, cls, "N2J_drawRect", "(IIIIIII)V");
     id_drawPoint = (*env)->GetMethodID(env, cls, "N2J_drawPoint", "(IIIII)V");
@@ -397,6 +451,8 @@ jbyteArray native_result(JNIEnv *env,jobject obj){
 	
 	main_t maim = (main_t) dlsym(handle,"main");
 
+	touchEvent_t=(on_touch)dlsym(handle,"onTouch");
+	
 char *res=(char*)malloc(1024);
 	
 res="oooo";

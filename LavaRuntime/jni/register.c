@@ -25,7 +25,7 @@ static JNINativeMethod s_methods[] = {
 	
 	{"runTimerMethod","(IJ)V",(void*)runTimerMethod},
 	{"geterror","()[B",(void*)geterror },
-	
+	{"touchEvent","(IFFII[F[F[I)Z",(void*)touchEvent},
 	
 	
 	/*

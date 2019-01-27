@@ -21,15 +21,22 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 	Thread td;
 	SurfaceHolder holder;
 	String pak=null;
+	HelloJni activity;
 	Paint bmp;
-	public NativeView(Context cc,String pp){
+	public NativeView(Context cc,String pp,HelloJni activity){
 		super(cc);
 		
 		holder=this.getHolder();
 		holder.addCallback(this);
+		this.activity=activity;
+		
+	
+		
 		setFocusable(true);
 		setFocusableInTouchMode(true);
+		
 		this.pak=pp;
+		
 		init();
 	}
 	
@@ -135,6 +142,38 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 		//back=true;
 	}
 
+	
+	
+	private static final int MAX_POINTER_NUMBER=10;
+	private float pointersX[]=new float[MAX_POINTER_NUMBER];
+	private float pointersY[]=new float[MAX_POINTER_NUMBER];
+	private int   pointersId[]=new int[MAX_POINTER_NUMBER];
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		//MotionEvent.ACTION_DOWN 
+		/*
+		Paint nn=new Paint();
+		nn.setColor(Color.YELLOW);
+		nn.setTextSize(80);
+		c.drawText("touch acreen",200,200,nn);
+		*/
+		int count=event.getPointerCount();
+		if(count>MAX_POINTER_NUMBER)
+			count=MAX_POINTER_NUMBER;
+		for(int i=0;i<count;i++)
+		{
+			pointersX[i]=event.getX(i);
+			pointersY[i]=event.getY(i);
+			pointersId[i]=event.getPointerId(i);
+		}
+
+		return activity.touchEvent(event.getAction(),event.getX(),event.getY(),event.getActionIndex(),count
+										  ,pointersX,pointersY,pointersId);
+	}
+	
+	
+	
 	
 	
 	public InputStream readPak(String filename) throws Exception{
@@ -266,5 +305,14 @@ public class NativeView extends SurfaceView implements SurfaceHolder.Callback
 			holder.unlockCanvasAndPost(cc);
 		}
 		
+	}
+	
+	
+	public int N2J_getScrW(){
+		return width;
+	}
+	
+	public int N2J_getScrH(){
+		return height;
 	}
 }
